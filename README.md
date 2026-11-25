@@ -65,7 +65,7 @@ or share either key.
 The first start downloads the two local models (~500 MB) and builds the index (seconds). Later starts load the cached index.
 
 ```bash
-python -m eval.run_eval         # real run of the question set -> eval/results.md
+python -m eval.run_eval --set test  # run all held-out test cases -> eval/results.md and eval/results.json
 ```
 
 ## How it works
@@ -122,21 +122,13 @@ LLM calls and Groq Whisper transcription may incur provider charges. Whisper tra
 
 Token counts come from the provider's `usage` field. Prices are in `.env` (`PRICE_*`, `USD_TO_INR`, `PRICING_NOTE`); record the date you copied them.
 
-The selected evaluation run recorded the following for `T1` and `T2` (the
-two test cases run) and `D8` (one dev case). These are measured for that run,
-not estimates or results for the complete six-question test set.
-
 | Scope | Passed | Mean cost / max | Median / p90 latency |
 |---|---:|---:|---:|
-| Test subset (`T1`, `T2`) | 2/2 | ₹0.0152 / ₹0.0162 | 2.44 s / 2.84 s |
-| Dev subset (`D8`) | 1/1 | ₹0.0147 / ₹0.0147 | 1.89 s / 1.89 s |
-
-The saved question-level report does not include model pricing details,
-per-stage timings, not-found retry timing, or one-time ingest time.
+| Full test set (6 cases, 7 turns) | 7/7 | ₹0.0138 / ₹0.0175 | 4.21 s / 5.88 s |
 
 ## Test results
 
-* **Question-set evaluation (`python -m eval.run_eval`)** runs the real app models. `eval/questions.json` has a 19-question **dev** set (used to choose `RERANK_MIN_SCORE`, `UPDATE_MIN_SCORE` and prompt wording) and a **6-question test** set, which is not used for tuning. The saved run summarized below selected only `T1`, `T2`, and `D8`; it does not report results for all six test questions.
+* **Question-set evaluation (`python -m eval.run_eval --set test`)** runs the real app models on all 6 held-out test cases in `eval/questions.json`. Case T5 contains a follow-up, so the run has 7 question turns. The 19-question dev set is separate and is used to tune thresholds and prompt wording.
 
 The evaluation runner writes `eval/results.json` with the question, answer,
 retrieved/cited pages, latency, cost, and pass/fail checks. It also writes
@@ -145,17 +137,25 @@ model and may consume its quota. The expected answers and citation checks are
 defined in `eval/questions.json`; unit tests separately cover parser,
 guardrail, and pipeline behavior.
 
-### Results from the saved selected-case run
+### Full held-out test-set results
 
-| ID | Split | Outcome | Cited pages | Latency | Cost |
-|---|---|---|---|---:|---:|
-| T1 | Test | PASS: gave the updated 09:15 ferry time | 5, 11 | 2.84 s | ₹0.0162 |
-| T2 | Test | PASS: named Agathe Rindel | 4 | 2.05 s | ₹0.0141 |
-| D8 | Dev | PASS: gave the €7 levy from April 2026 | 2, 5, 11 | 1.89 s | ₹0.0147 |
+Run recorded **7/7 turns passed** (all 6 test cases, including the T5
+follow-up). No expected-answer, not-found, or citation checks failed.
 
-`T3`–`T6` were not part of this selected run. Run `python -m eval.run_eval
---set test` to evaluate the full test set; this uses the configured answer
-model and may consume quota.
+| ID | Result |
+|---|---|
+| T1 | PASS — gave the updated 09:15 ferry time; cited pages 5 and 11. |
+| T2 | PASS — named Agathe Rindel; cited page 4. |
+| T3 | PASS — calculated the ferry fares and levy as €105; cited pages 5 and 11. |
+| T4 | PASS — named Greyhollow and its 412 m height; cited page 3. |
+| T5, turn 1 | PASS — said Thursday trips now visit Duna Skerry only; cited pages 5 and 11. |
+| T5, follow-up | PASS — explained that a rockfall closed Whitcombe Rock; cited pages 5 and 11. |
+| T6 | PASS — correctly said the hotel price is not in the document. |
+
+This is the full defined test set for this project, but it is still only six
+cases from one 11-page PDF; it is not evidence that every document or question
+will work. Running the command uses the configured answer model and may
+consume quota.
 
 ## Limitations (honest list)
 
