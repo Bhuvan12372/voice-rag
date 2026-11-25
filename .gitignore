@@ -1,0 +1,20 @@
+# Secrets
+.env
+
+# The brief says not to share the document publicly: keep it out of the repo.
+data/*.pdf
+data/uploads/
+
+# Generated indexes (rebuilt automatically from the PDF)
+cache/
+
+# Generated evaluations may contain document-derived answers.
+eval/results.md
+eval/results.json
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/

@@ -1,0 +1,23 @@
+# Voice Study Assistant - dependencies
+# Install:  pip install -r requirements.txt
+# Tip: to avoid the large CUDA build of PyTorch, install the CPU wheel first:
+#      pip install torch --index-url https://download.pytorch.org/whl/cpu
+# (BM25 is implemented in voicerag/retriever.py, so no BM25 package is needed.)
+
+# --- UI + browser audio capture / speech recognition fallback ---
+streamlit>=1.40
+streamlit-mic-recorder>=0.0.8
+
+# --- PDF parsing (text with font info + table detection) ---
+pdfplumber>=0.11
+
+# --- Retrieval: vector store, embeddings, cross-encoder reranker ---
+chromadb>=0.5
+sentence-transformers>=3.0   # embeddings + cross-encoder reranker; pulls in torch
+
+# --- LLM access (any OpenAI-compatible API: Gemini, Groq, OpenAI, ...) ---
+openai>=1.50
+python-dotenv>=1.0
+
+# --- Tests ---
+pytest>=8.0
