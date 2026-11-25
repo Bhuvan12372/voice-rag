@@ -160,12 +160,11 @@ model and may consume quota.
 ## Limitations (honest list)
 
 * **Speech recognition** records audio in the browser and sends it to Groq's Whisper API; it needs microphone permission, internet access, and a Groq API key. If Groq is unavailable or the request fails, browser speech recognition can be used as a fallback (Chrome recommended). Both can mishear names, so the transcript is shown and editable. Set `WHISPER_MODEL` to change the default `whisper-large-v3`.
-* **Update handling is document-specific.** It relies on an updates/errata chapter title. Inline corrections, dated notices, or differently named chapters are not detected. A general solution would need date and supersession parsing, which is unreliable.
-* **"Now" is defined by the document, not the calendar.** The guide is the 2025 edition and says the levy rises to €7 from 1 April 2026. The model is told not to assume today's date, so it states both the value and the dated change.
+
 * **Scores and thresholds** were tuned on a small dev set of a single document; treat them as starting points for another document. `RERANK_MIN_SCORE` checks the best result to decide whether to answer, while `CONTEXT_MIN_RERANK_SCORE` (default `0.001`) filters each selected chunk before it reaches the answer model. `UPDATE_MIN_SCORE` gates update-override chunks. `RERANK_MIN_SCORE` checks the best result to decide whether to answer; `CONTEXT_MIN_RERANK_SCORE` filters individual chunks before they reach the answer model.
-* **Chunks never cross pages**, so a fact that straddles a page break is split. There is no chunk overlap because sections are self-contained here.
+
 * **PDF layout assumptions:** text-based PDF with ruled tables and consistent heading fonts. Scanned PDFs (no OCR) or unruled tables would need another parser.
-* **Not-found questions cost more**: the retry adds a decomposition call and a second answer call (see the table above).
+
 * **Single user, single process**: sessions live in Streamlit session state; no authentication or persistence of history.
 
 ## Repository layout
